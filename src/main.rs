@@ -1,58 +1,50 @@
-fn init_window() -> pancurses::Window {
-    let window = pancurses::initscr();
+use termion::{color, style, cursor, clear};
+use termion::raw::IntoRawMode;
+use std::io::{Read, Write, stdout, stdin};
 
-    window.nodelay(true);
-    window.refresh();
-    window.keypad(true);
-
-    pancurses::noecho();
-    pancurses::nl();
-
-    pancurses::start_color();
-
-    for i in 0..pancurses::COLORS() {
-        pancurses::init_pair(i as i16, i as i16, pancurses::COLOR_BLACK);
-    }
-
-    window
-}
+mod game;
 
 fn main() {
-    let window = init_window();
+    let stdout = stdout();
+    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+    let stdin = stdin();
+    let stdin = stdin.lock();
 
-    window.attrset(pancurses::COLOR_PAIR(1));
+    write!(stdout,
+           "{}{}",
+           clear::All,
+           cursor::Hide,
+           ).unwrap();
+    stdout.flush().unwrap();
 
-    let mut height = window.get_max_y();
-    let mut width = window.get_max_x();
+    let (width, height) = termion::terminal_size().unwrap();
 
-    loop {
-        match window.getch() {
-            Some(pancurses::Input::Character(c)) => { window.addch(c); },
-            Some(pancurses::Input::KeyDC) => break,
-            Some(pancurses::Input::KeyResize) => {
-                height = window.get_max_y();
-                width = window.get_max_x();
-            },
-            Some(input) => { window.addstr(&format!("{:?}", input)); },
-            None => (),
+    let width_scale = 255.0 / (width as f64);
+    let height_scale = 255.0 / (height as f64);
+
+    for r in 1..width {
+        for g in 1..height {
+            let color = color::Rgb((r as f64 * width_scale) as u8, (g as f64 * height_scale) as u8, 255);
+            write!(stdout, "{}{}{}ˑ", cursor::Goto(r, g), color::Fg(color::White), color::Bg(color)).unwrap();
         }
-
-        window.erase();
-
-        for x in 0..width {
-            for y in 0..height {
-                let index = (y * width) + x;
-                let index = index % pancurses::COLORS();
-                let attr = pancurses::COLOR_PAIR(index as u32);
-
-                window.attron(attr);
-                window.mvaddch(y, x, 'X');
-                window.attroff(attr);
-            }
-        }
-
-        window.mvprintw(height-1, 0, &format!("{}x{} - {}", width, height, pancurses::COLORS()));
     }
-    pancurses::endwin();
+    stdout.flush().unwrap();
+
+    let mut bytes = stdin.bytes();
+    loop {
+        let b = bytes.next().unwrap().unwrap();
+
+        match b {
+            b'q' => break,
+
+            b'c' => write!(stdout, "{}", clear::All).unwrap(),
+
+            _ => (),
+        };
+
+        stdout.flush().unwrap();
+    }
+    write!(stdout, "{}{}{}{}", style::Reset, cursor::Show, clear::All, cursor::Goto(1, 1)).unwrap();
+    stdout.flush().unwrap();
 }
 
