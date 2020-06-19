@@ -1,50 +1,62 @@
-use termion::{color, style, cursor, clear};
-use termion::raw::IntoRawMode;
-use std::io::{Read, Write, stdout, stdin};
+use std::io::{stdout, Write};
+
+use termion::{async_stdin, clear, cursor, input::TermRead, raw::IntoRawMode, style};
 
 mod game;
 
-fn main() {
-    let stdout = stdout();
-    let mut stdout = stdout.lock().into_raw_mode().unwrap();
-    let stdin = stdin();
-    let stdin = stdin.lock();
+use game::systems::render::{Color, Renderer};
 
-    write!(stdout,
-           "{}{}",
-           clear::All,
-           cursor::Hide,
-           ).unwrap();
-    stdout.flush().unwrap();
-
-    let (width, height) = termion::terminal_size().unwrap();
-
-    let width_scale = 255.0 / (width as f64);
-    let height_scale = 255.0 / (height as f64);
-
-    for r in 1..width {
-        for g in 1..height {
-            let color = color::Rgb((r as f64 * width_scale) as u8, (g as f64 * height_scale) as u8, 255);
-            write!(stdout, "{}{}{}ˑ", cursor::Goto(r, g), color::Fg(color::White), color::Bg(color)).unwrap();
-        }
-    }
-    stdout.flush().unwrap();
-
-    let mut bytes = stdin.bytes();
-    loop {
-        let b = bytes.next().unwrap().unwrap();
-
-        match b {
-            b'q' => break,
-
-            b'c' => write!(stdout, "{}", clear::All).unwrap(),
-
-            _ => (),
-        };
-
-        stdout.flush().unwrap();
-    }
-    write!(stdout, "{}{}{}{}", style::Reset, cursor::Show, clear::All, cursor::Goto(1, 1)).unwrap();
-    stdout.flush().unwrap();
+struct Terminal<'a, W: Write> {
+    stdout: &'a mut termion::raw::RawTerminal<W>,
 }
 
+impl<'a, W: Write> Renderer for Terminal<'a, W> {
+    fn draw_at(&mut self, x: u16, y: u16, fg: &Color, bg: &Color, rune: char) {
+        use termion::*;
+        write!(
+            self.stdout,
+            "{}{}{}{}",
+            cursor::Goto(x, y),
+            color::Fg(color::Rgb(fg.r, fg.g, fg.b)),
+            color::Bg(color::Rgb(bg.r, bg.g, bg.b)),
+            rune,
+        )
+        .unwrap();
+    }
+
+    fn size(&self) -> (u16, u16) {
+        termion::terminal_size().unwrap()
+    }
+
+    fn flush(&mut self) {
+        self.stdout.flush().unwrap();
+    }
+}
+
+fn main() {
+    let stdout = stdout();
+    let stdin = async_stdin();
+    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+
+    write!(stdout, "{}{}", clear::All, cursor::Hide,).unwrap();
+    stdout.flush().unwrap();
+
+    let terminal = Terminal {
+        stdout: &mut stdout,
+    };
+
+    let input = game::input::Input::new(stdin.keys());
+
+    game::run(terminal, input);
+
+    write!(
+        stdout,
+        "{}{}{}{}",
+        style::Reset,
+        cursor::Show,
+        clear::All,
+        cursor::Goto(1, 1)
+    )
+    .unwrap();
+    stdout.flush().unwrap();
+}
