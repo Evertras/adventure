@@ -57,9 +57,9 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
         let half_height = height as i32 / 2;
 
         let min_x = camera_center.x - half_width;
-        let max_x = camera_center.x + half_width + (width as i32 % 2);
+        let max_x = camera_center.x + half_width + (width as i32 % 2) - 1;
         let min_y = camera_center.y - half_height;
-        let max_y = camera_center.y + half_height + (height as i32 % 2);
+        let max_y = camera_center.y + half_height + (height as i32 % 2) - 1;
 
         let offset_x = if min_x < 0 { min_x - 1 } else { min_x };
         let offset_y = if min_y < 0 { min_y - 1 } else { min_y };
@@ -108,9 +108,9 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
                     fg_g: draw.fg_g,
                     fg_b: draw.fg_b,
 
-                    bg_r: (buffer[i].bg_r + draw.bg_r) / 2,
-                    bg_g: (buffer[i].bg_g + draw.bg_g) / 2,
-                    bg_b: (buffer[i].bg_b + draw.bg_b) / 2,
+                    bg_r: buffer[i].bg_r / 2 + draw.bg_r / 2,
+                    bg_g: buffer[i].bg_g / 2 + draw.bg_g / 2,
+                    bg_b: buffer[i].bg_b / 2 + draw.bg_b / 2,
 
                     layer: draw.layer.clone(),
 
