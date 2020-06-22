@@ -90,7 +90,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
             bg_g: 0,
             bg_b: 0,
 
-            layer: components::DL_MAP,
+            layer: components::DL_FLOOR,
 
             rune: '?',
         };
@@ -358,7 +358,7 @@ mod tests {
                 camera_x as f64,
                 camera_y as f64,
                 lower_rune,
-                components::DL_MAP,
+                components::DL_FLOOR,
             );
         }
         spawn(
@@ -372,7 +372,7 @@ mod tests {
                 camera_x as f64,
                 camera_y as f64,
                 lower_rune,
-                components::DL_MAP,
+                components::DL_FLOOR,
             );
         }
 

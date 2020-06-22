@@ -17,7 +17,8 @@ pub struct Velocity {
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct DrawLayer(u8);
 
-pub const DL_MAP: DrawLayer = DrawLayer(0);
+pub const DL_FLOOR: DrawLayer = DrawLayer(0);
+pub const DL_WALLS: DrawLayer = DrawLayer(5);
 pub const DL_ENTITY: DrawLayer = DrawLayer(100);
 
 #[derive(Clone, Component, Debug, PartialEq, Eq)]

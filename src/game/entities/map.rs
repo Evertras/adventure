@@ -20,6 +20,11 @@ pub fn create_in(world: &mut World) {
         walls.push((RIGHT, y));
     }
 
+    walls.push((LEFT/2, -1));
+    walls.push((LEFT/2, 0));
+    walls.push((LEFT/2, 1));
+    walls.push((LEFT/2, 2));
+
     for x in LEFT..RIGHT {
         for y in TOP..BOTTOM {
             floors.push((x, y));
@@ -40,7 +45,7 @@ pub fn create_in(world: &mut World) {
                 bg_r: 128,
                 bg_g: 128,
                 bg_b: 128,
-                layer: components::DL_MAP,
+                layer: components::DL_WALLS,
                 rune: 'X',
             })
             .build();
@@ -60,7 +65,7 @@ pub fn create_in(world: &mut World) {
                 bg_r: 28,
                 bg_g: 28,
                 bg_b: 28,
-                layer: components::DL_MAP,
+                layer: components::DL_FLOOR,
                 rune: ' ',
             })
             .build();
