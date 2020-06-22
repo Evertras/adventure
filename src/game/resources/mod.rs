@@ -8,6 +8,4 @@ pub struct CameraCenter {
 }
 
 #[derive(Default)]
-pub struct PendingActions {
-    pub actions: Vec<super::input::Action>,
-}
+pub struct PendingAction(pub Option<super::input::Action>);
