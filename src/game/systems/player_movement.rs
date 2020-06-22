@@ -10,31 +10,31 @@ impl<'a> System<'a> for PlayerMovement {
         Read<'a, resources::PendingAction>,
     );
 
-    fn run(&mut self, (_, mut position, pending_action): Self::SystemData) {
+    fn run(&mut self, (player, mut position, pending_action): Self::SystemData) {
         use specs::Join;
 
         let pending_action = &pending_action.0;
 
         match pending_action {
             Some(input::Action::Up) => {
-                for pos in (&mut position).join() {
+                for (pos, _) in (&mut position, &player).join() {
                     // Negative Y is up
                     pos.y -= 1.;
                 }
             }
             Some(input::Action::Down) => {
-                for pos in (&mut position).join() {
+                for (pos, _) in (&mut position, &player).join() {
                     // Positive Y is down
                     pos.y += 1.;
                 }
             }
             Some(input::Action::Right) => {
-                for pos in (&mut position).join() {
+                for (pos, _) in (&mut position, &player).join() {
                     pos.x += 1.;
                 }
             }
             Some(input::Action::Left) => {
-                for pos in (&mut position).join() {
+                for (pos, _) in (&mut position, &player).join() {
                     pos.x -= 1.;
                 }
             }
@@ -63,7 +63,7 @@ mod tests {
 
         world.insert(resources::PendingAction(pending_action));
 
-        let ent = world
+        let ent_player = world
             .create_entity()
             .with(components::Position {
                 x: start_x as f64,
@@ -72,18 +72,37 @@ mod tests {
             .with(components::Player)
             .build();
 
+        let ent_npc = world
+            .create_entity()
+            .with(components::Position {
+                x: start_x as f64,
+                y: start_y as f64,
+            })
+            .build();
+
         let mut player_movement = PlayerMovement;
         player_movement.run_now(&world);
         world.maintain();
 
         let read_pos = world.read_storage::<components::Position>();
-        let found_pos = read_pos.get(ent);
+        let player_pos = read_pos.get(ent_player);
 
-        match found_pos {
+        match player_pos {
             None => panic!("Not found at all"),
             Some(pos) => {
                 assert_eq!(pos.x as i32, expected_x as i32);
                 assert_eq!(pos.y as i32, expected_y as i32);
+            }
+        };
+
+        // Make sure we don't move things without the Player component
+        let npc_pos = read_pos.get(ent_npc);
+
+        match npc_pos {
+            None => panic!("Not found at all"),
+            Some(pos) => {
+                assert_eq!(pos.x as i32, start_x as i32);
+                assert_eq!(pos.y as i32, start_y as i32);
             }
         };
     }
@@ -95,11 +114,13 @@ mod tests {
 
     #[test]
     fn moves_up_when_pressed() {
+        // Negative Y is up
         test(Some(input::Action::Up), 5, -3, 5, -4);
     }
 
     #[test]
     fn moves_down_when_pressed() {
+        // Positive Y is down
         test(Some(input::Action::Down), 5, -3, 5, -2);
     }
 

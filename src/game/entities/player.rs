@@ -14,5 +14,6 @@ pub fn create_in(world: &mut World) {
             bg_b: 0,
             rune: '@',
         })
+        .with(components::Player)
         .build();
 }
