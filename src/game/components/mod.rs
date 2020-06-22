@@ -14,7 +14,13 @@ pub struct Velocity {
     pub y: f64,
 }
 
-#[derive(Component, Debug)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+pub struct DrawLayer(u8);
+
+pub const DL_MAP: DrawLayer = DrawLayer(0);
+pub const DL_ENTITY: DrawLayer = DrawLayer(100);
+
+#[derive(Clone, Component, Debug, PartialEq, Eq)]
 #[storage(VecStorage)]
 pub struct Draw {
     pub fg_r: u8,
@@ -24,6 +30,8 @@ pub struct Draw {
     pub bg_r: u8,
     pub bg_g: u8,
     pub bg_b: u8,
+
+    pub layer: DrawLayer,
 
     pub rune: char,
 }

@@ -12,6 +12,7 @@ pub fn create_in(world: &mut World) {
             bg_r: 0,
             bg_g: 0,
             bg_b: 0,
+            layer: components::DL_ENTITY,
             rune: '@',
         })
         .with(components::Player)

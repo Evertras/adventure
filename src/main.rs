@@ -11,12 +11,12 @@ struct Terminal<'a, W: Write> {
 }
 
 impl<'a, W: Write> Renderer for Terminal<'a, W> {
-    fn draw_at(&mut self, x: u16, y: u16, fg: &Color, bg: &Color, rune: char) {
+    fn draw_at(&mut self, x: usize, y: usize, fg: &Color, bg: &Color, rune: char) {
         use termion::*;
         write!(
             self.stdout,
             "{}{}{}{}",
-            cursor::Goto(x, y),
+            cursor::Goto(x as u16, y as u16),
             color::Fg(color::Rgb(fg.r, fg.g, fg.b)),
             color::Bg(color::Rgb(bg.r, bg.g, bg.b)),
             rune,
@@ -24,22 +24,14 @@ impl<'a, W: Write> Renderer for Terminal<'a, W> {
         .unwrap();
     }
 
-    fn size(&self) -> (u16, u16) {
-        termion::terminal_size().unwrap()
+    fn size(&self) -> (usize, usize) {
+        let (width, height) = termion::terminal_size().unwrap();
+
+        (width as usize, height as usize)
     }
 
     fn flush(&mut self) {
-        use termion::*;
-
         self.stdout.flush().unwrap();
-
-        write!(
-            self.stdout,
-            "{}{}",
-            color::Bg(color::Rgb(0, 0, 0)),
-            clear::All,
-        )
-        .unwrap();
     }
 }
 
