@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 termion = "*"
-specs = "0.16.1"
+specs = { version = "0.16.1", features = ["specs-derive"] }
 

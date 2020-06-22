@@ -1,26 +1,21 @@
-use specs::prelude::*;
+use specs::{Component, DenseVecStorage, NullStorage, VecStorage};
 
-#[derive(Clone, Debug)]
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
 pub struct Position {
     pub x: f64,
     pub y: f64,
 }
 
-impl Component for Position {
-    type Storage = VecStorage<Self>;
-}
-
-#[derive(Clone, Debug)]
+#[derive(Component, Debug)]
+#[storage(DenseVecStorage)]
 pub struct Velocity {
     pub x: f64,
     pub y: f64,
 }
 
-impl Component for Velocity {
-    type Storage = DenseVecStorage<Self>;
-}
-
-#[derive(Clone, Debug)]
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
 pub struct Draw {
     pub fg_r: u8,
     pub fg_g: u8,
@@ -33,6 +28,6 @@ pub struct Draw {
     pub rune: char,
 }
 
-impl Component for Draw {
-    type Storage = VecStorage<Self>;
-}
+#[derive(Component, Default)]
+#[storage(NullStorage)]
+pub struct Player;
