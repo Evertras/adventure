@@ -71,6 +71,6 @@ mod tests {
                 assert_eq!(pos.x as i32, expected_x);
                 assert_eq!(pos.y as i32, expected_y);
             }
-        }
+        };
     }
 }
