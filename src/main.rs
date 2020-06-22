@@ -29,7 +29,17 @@ impl<'a, W: Write> Renderer for Terminal<'a, W> {
     }
 
     fn flush(&mut self) {
+        use termion::*;
+
         self.stdout.flush().unwrap();
+
+        write!(
+            self.stdout,
+            "{}{}",
+            color::Bg(color::Rgb(0, 0, 0)),
+            clear::All,
+        )
+        .unwrap();
     }
 }
 
