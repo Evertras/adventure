@@ -50,6 +50,6 @@ pub fn run<T: Renderer, U: input::Buffer>(renderer: T, mut input: U) {
         dispatcher.dispatch(&mut world);
         world.maintain();
 
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(10));
     }
 }
