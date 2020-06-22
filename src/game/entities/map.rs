@@ -5,7 +5,7 @@ pub fn create_in(world: &mut World) {
     let mut walls: Vec<(i32, i32)> = Vec::new();
     let mut floors: Vec<(i32, i32)> = Vec::new();
 
-    for x in -5..5 {
+    for x in -6..6 {
         walls.push((x, -6));
         walls.push((x, 5));
     }
