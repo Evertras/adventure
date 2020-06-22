@@ -95,12 +95,29 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
             rune: '?',
         };
 
-        let mut buffer: Vec<&components::Draw> = vec![&blank; width * height];
+        let mut buffer: Vec<components::Draw> = vec![blank.clone(); width * height];
 
         for (tile_x, tile_y, draw) in to_draw {
             let i = (tile_y * width + tile_x) as usize;
 
-            buffer[i] = draw;
+            if buffer[i].rune == '?' {
+                buffer[i] = draw.clone();
+            } else {
+                buffer[i] = components::Draw {
+                    fg_r: draw.fg_r,
+                    fg_g: draw.fg_g,
+                    fg_b: draw.fg_b,
+
+                    bg_r: (buffer[i].bg_r + draw.bg_r) / 2,
+                    bg_g: (buffer[i].bg_g + draw.bg_g) / 2,
+                    bg_b: (buffer[i].bg_b + draw.bg_b) / 2,
+
+                    layer: draw.layer.clone(),
+
+                    rune: draw.rune,
+                };
+            }
+
         }
 
         if width != self.back_buffer_width || height != self.back_buffer_height {
@@ -112,7 +129,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
         for x in 0..width {
             for y in 0..height {
                 let i = (y * width + x) as usize;
-                let draw = buffer[i];
+                let draw = &buffer[i];
 
                 if *draw != self.back_buffer[i] {
                     self.back_buffer[i] = draw.clone();
