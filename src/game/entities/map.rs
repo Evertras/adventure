@@ -2,21 +2,26 @@ use super::super::components;
 use specs::{Builder, World, WorldExt};
 
 pub fn create_in(world: &mut World) {
+    const LEFT: i32 = -20;
+    const RIGHT: i32 = 20;
+    const TOP: i32 = -10;
+    const BOTTOM: i32 = 10;
+
     let mut walls: Vec<(i32, i32)> = Vec::new();
     let mut floors: Vec<(i32, i32)> = Vec::new();
 
-    for x in -6..6 {
-        walls.push((x, -6));
-        walls.push((x, 5));
+    for x in (LEFT-1)..(RIGHT+1) {
+        walls.push((x, TOP-1));
+        walls.push((x, BOTTOM));
     }
 
-    for y in -5..5 {
-        walls.push((-6, y));
-        walls.push((5, y));
+    for y in TOP..BOTTOM {
+        walls.push((LEFT-1, y));
+        walls.push((RIGHT, y));
     }
 
-    for x in -5..5 {
-        for y in -5..5 {
+    for x in LEFT..RIGHT {
+        for y in TOP..BOTTOM {
             floors.push((x, y));
         }
     }
