@@ -117,7 +117,6 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
                     rune: draw.rune,
                 };
             }
-
         }
 
         if width != self.back_buffer_width || height != self.back_buffer_height {

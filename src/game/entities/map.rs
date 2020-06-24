@@ -10,20 +10,20 @@ pub fn create_in(world: &mut World) {
     let mut walls: Vec<(i32, i32)> = Vec::new();
     let mut floors: Vec<(i32, i32)> = Vec::new();
 
-    for x in (LEFT-1)..(RIGHT+1) {
-        walls.push((x, TOP-1));
+    for x in (LEFT - 1)..(RIGHT + 1) {
+        walls.push((x, TOP - 1));
         walls.push((x, BOTTOM));
     }
 
     for y in TOP..BOTTOM {
-        walls.push((LEFT-1, y));
+        walls.push((LEFT - 1, y));
         walls.push((RIGHT, y));
     }
 
-    walls.push((LEFT/2, -1));
-    walls.push((LEFT/2, 0));
-    walls.push((LEFT/2, 1));
-    walls.push((LEFT/2, 2));
+    walls.push((LEFT / 2, -1));
+    walls.push((LEFT / 2, 0));
+    walls.push((LEFT / 2, 1));
+    walls.push((LEFT / 2, 2));
 
     for x in LEFT..RIGHT {
         for y in TOP..BOTTOM {
