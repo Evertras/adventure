@@ -8,11 +8,11 @@ impl<'a> System<'a> for PlayerMovement {
         ReadStorage<'a, components::Player>,
         WriteStorage<'a, components::Position>,
         Read<'a, resources::PendingAction>,
-        Read<'a, resources::entity_grid::EntityGrid>,
+        Read<'a, resources::game_map::GameMap>,
     );
 
     fn run(&mut self, (player, mut position, pending_action, entity_grid): Self::SystemData) {
-        use resources::entity_grid::{Coordinate, EntityGrid};
+        use resources::game_map::{Coordinate, GameMap};
         use specs::Join;
 
         let entity_grid = &entity_grid;
@@ -65,7 +65,7 @@ mod tests {
         world.register::<components::Position>();
 
         world.insert(resources::PendingAction(pending_action));
-        world.insert(resources::entity_grid::EntityGrid::new());
+        world.insert(resources::game_map::GameMap::new());
 
         let ent_player = world
             .create_entity()

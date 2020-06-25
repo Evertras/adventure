@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 termion = "*"
 specs = { version = "0.16.1", features = ["specs-derive"] }
+bitflags = "1.2.1"
 

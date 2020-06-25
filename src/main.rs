@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate bitflags;
+
 use std::io::{stdout, Write};
 
 use termion::{async_stdin, clear, cursor, input::TermRead, raw::IntoRawMode, style};

@@ -1,4 +1,4 @@
-pub mod entity_grid;
+pub mod game_map;
 
 #[derive(Default)]
 pub struct DeltaTime(pub std::time::Duration);
