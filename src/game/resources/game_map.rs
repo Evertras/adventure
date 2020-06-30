@@ -1,26 +1,6 @@
+use super::super::components::Position;
 use specs::Entity;
 use std::collections::{HashMap, HashSet};
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Coordinate(pub i32, pub i32);
-
-impl Coordinate {
-    pub fn up(&self) -> Coordinate {
-        Coordinate(self.0, self.1 - 1)
-    }
-
-    pub fn down(&self) -> Coordinate {
-        Coordinate(self.0, self.1 + 1)
-    }
-
-    pub fn left(&self) -> Coordinate {
-        Coordinate(self.0 - 1, self.1)
-    }
-
-    pub fn right(&self) -> Coordinate {
-        Coordinate(self.0 + 1, self.1)
-    }
-}
 
 bitflags! {
     #[derive(Default)]
@@ -36,7 +16,7 @@ struct TileData {
 }
 
 pub struct GameMap {
-    data: HashMap<Coordinate, TileData>,
+    data: HashMap<Position, TileData>,
 }
 
 impl GameMap {
@@ -46,26 +26,26 @@ impl GameMap {
         }
     }
 
-    pub fn add(&mut self, coordinate: &Coordinate, entity: Entity) {
+    pub fn add(&mut self, coordinate: &Position, entity: Entity) {
         let entry = &mut self.data.entry(coordinate.clone()).or_default().entities;
 
         entry.insert(entity);
     }
 
-    pub fn get_entities(&self, coordinate: &Coordinate) -> Option<&HashSet<Entity>> {
+    pub fn get_entities(&self, coordinate: &Position) -> Option<&HashSet<Entity>> {
         match self.data.get(coordinate) {
             None => None,
             Some(entry) => Some(&entry.entities),
         }
     }
 
-    pub fn mark_tile(&mut self, coordinate: &Coordinate, flags: TileProperties) {
+    pub fn mark_tile(&mut self, coordinate: &Position, flags: TileProperties) {
         let mut entry = &mut self.data.entry(coordinate.clone()).or_default();
 
         entry.properties = entry.properties | flags;
     }
 
-    pub fn clear_tile_properties(&mut self, coordinate: &Coordinate) {
+    pub fn clear_tile_properties(&mut self, coordinate: &Position) {
         match self.data.get_mut(&coordinate) {
             None => (),
             Some(entry) => {
@@ -74,7 +54,7 @@ impl GameMap {
         }
     }
 
-    pub fn tile_is(&mut self, coordinate: &Coordinate, flags: TileProperties) -> bool {
+    pub fn tile_is(&self, coordinate: &Position, flags: TileProperties) -> bool {
         match self.data.get(&coordinate) {
             None => false,
             Some(entry) => entry.properties.contains(flags),
@@ -99,36 +79,36 @@ mod tests {
 
     #[test]
     fn coordinate_up_returns_1_up() {
-        let initial = Coordinate(-4, 3);
+        let initial = Position { x: -4, y: 3 };
 
         // Remember that up is negative in Y coordinates for our world
-        let expected = Coordinate(-4, 2);
+        let expected = Position { x: -4, y: 2 };
 
         assert_eq!(initial.up(), expected);
     }
 
     #[test]
     fn coordinate_down_returns_1_down() {
-        let initial = Coordinate(-4, 3);
+        let initial = Position { x: -4, y: 3 };
 
         // Remember that down is positive in Y coordinates for our world
-        let expected = Coordinate(-4, 4);
+        let expected = Position { x: -4, y: 4 };
 
         assert_eq!(initial.down(), expected);
     }
 
     #[test]
     fn coordinate_right_returns_1_right() {
-        let initial = Coordinate(5, 3);
-        let expected = Coordinate(6, 3);
+        let initial = Position { x: 5, y: 3 };
+        let expected = Position { x: 6, y: 3 };
 
         assert_eq!(initial.right(), expected);
     }
 
     #[test]
     fn coordinate_left_returns_1_left() {
-        let initial = Coordinate(5, 3);
-        let expected = Coordinate(4, 3);
+        let initial = Position { x: 5, y: 3 };
+        let expected = Position { x: 4, y: 3 };
 
         assert_eq!(initial.left(), expected);
     }
@@ -136,7 +116,7 @@ mod tests {
     #[test]
     fn safely_returns_no_entities_when_not_found() {
         let map: GameMap = GameMap::new();
-        let square = Coordinate(-4, 3);
+        let square = Position { x: -4, y: 3 };
 
         let result = map.get_entities(&square);
 
@@ -152,7 +132,7 @@ mod tests {
 
         let mut world = World::new();
         let expected_value = world.create_entity().build();
-        let square = Coordinate(-3, 4);
+        let square = Position { x: -3, y: 4 };
 
         map.add(&square, expected_value);
 
@@ -180,7 +160,7 @@ mod tests {
 
         let mut world = World::new();
         let expected_value = world.create_entity().build();
-        let square = Coordinate(-3, 4);
+        let square = Position { x: -3, y: 4 };
 
         map.add(&square, expected_value);
         map.clear_all();
@@ -204,7 +184,7 @@ mod tests {
         let mut world = World::new();
         let first_value = world.create_entity().build();
         let second_value = world.create_entity().build();
-        let first_square = Coordinate(-3, 4);
+        let first_square = Position { x: -3, y: 4 };
         let second_square = first_square.up();
 
         map.add(&first_square, first_value);
@@ -238,7 +218,7 @@ mod tests {
         let mut world = World::new();
         let first_value = world.create_entity().build();
         let second_value = world.create_entity().build();
-        let square = Coordinate(-3, 4);
+        let square = Position { x: -3, y: 4 };
 
         map.add(&square, first_value);
         map.add(&square, second_value);
@@ -258,7 +238,7 @@ mod tests {
     #[test]
     fn marks_square_as_blocked() {
         let mut map: GameMap = GameMap::new();
-        let square = Coordinate(-3, 4);
+        let square = Position { x: -3, y: 4 };
 
         assert!(!map.tile_is(&square, TileProperties::BLOCKED));
         map.mark_tile(&square, TileProperties::BLOCKED);
@@ -268,7 +248,7 @@ mod tests {
     #[test]
     fn clears_tile_properties() {
         let mut map: GameMap = GameMap::new();
-        let square = Coordinate(-3, 4);
+        let square = Position { x: -3, y: 4 };
 
         map.mark_tile(&square, TileProperties::BLOCKED);
         assert!(map.tile_is(&square, TileProperties::BLOCKED));

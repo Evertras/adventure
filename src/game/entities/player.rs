@@ -4,7 +4,7 @@ use specs::{Builder, World, WorldExt};
 pub fn create_in(world: &mut World) {
     world
         .create_entity()
-        .with(components::Position { x: 0., y: 0. })
+        .with(components::Position { x: 0, y: 0 })
         .with(components::Draw {
             fg_r: 255,
             fg_g: 64,

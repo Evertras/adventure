@@ -1,17 +1,43 @@
-use specs::{Component, DenseVecStorage, NullStorage, VecStorage};
+use specs::{Component, NullStorage, VecStorage};
 
-#[derive(Component, Debug)]
+#[derive(Clone, Component, Debug, PartialEq, Eq, Hash)]
 #[storage(VecStorage)]
 pub struct Position {
-    pub x: f64,
-    pub y: f64,
+    pub x: i32,
+    pub y: i32,
 }
 
-#[derive(Component, Debug)]
-#[storage(DenseVecStorage)]
-pub struct Velocity {
-    pub x: f64,
-    pub y: f64,
+impl Position {
+    pub fn new(x: i32, y: i32) -> Position {
+        Position { x, y }
+    }
+    pub fn up(&self) -> Position {
+        Position {
+            x: self.x,
+            y: self.y - 1,
+        }
+    }
+
+    pub fn down(&self) -> Position {
+        Position {
+            x: self.x,
+            y: self.y + 1,
+        }
+    }
+
+    pub fn left(&self) -> Position {
+        Position {
+            x: self.x - 1,
+            y: self.y,
+        }
+    }
+
+    pub fn right(&self) -> Position {
+        Position {
+            x: self.x + 1,
+            y: self.y,
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]

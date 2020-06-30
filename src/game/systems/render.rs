@@ -221,8 +221,8 @@ mod tests {
         let bg_r = 43;
         let bg_g = 134;
         let bg_b = 101;
-        let visible_x: f64 = 1.2;
-        let visible_y: f64 = -51.3;
+        let visible_x = 1;
+        let visible_y = -51;
         let rune = '+';
         let camera_x = 2;
         let camera_y = -50;
@@ -241,7 +241,7 @@ mod tests {
 
         world.insert(camera_center);
 
-        let mut spawn = |x: f64, y: f64| {
+        let mut spawn = |x: i32, y: i32| {
             world
                 .create_entity()
                 .with(components::Position { x, y })
@@ -265,16 +265,16 @@ mod tests {
         spawn(visible_x, visible_y);
 
         // Off to the right
-        spawn(5.0, visible_y);
+        spawn(5, visible_y);
 
         // Off to the left
-        spawn(-1.001, visible_y);
+        spawn(-2, visible_y);
 
         // Above
-        spawn(visible_x, -53.00001);
+        spawn(visible_x, -54);
 
         // Below
-        spawn(visible_x, -46.9);
+        spawn(visible_x, -46);
 
         let mut render = Render::new(mock_renderer);
 
@@ -331,7 +331,7 @@ mod tests {
 
         world.insert(camera_center);
 
-        let mut spawn = |x: f64, y: f64, rune: char, layer: components::DrawLayer| {
+        let mut spawn = |x: i32, y: i32, rune: char, layer: components::DrawLayer| {
             world
                 .create_entity()
                 .with(components::Position { x, y })
@@ -353,26 +353,11 @@ mod tests {
 
         // Add a bunch extra to hedge against any potential hidden randomization
         for _ in 0..500 {
-            spawn(
-                camera_x as f64,
-                camera_y as f64,
-                lower_rune,
-                components::DL_FLOOR,
-            );
+            spawn(camera_x, camera_y, lower_rune, components::DL_FLOOR);
         }
-        spawn(
-            camera_x as f64,
-            camera_y as f64,
-            upper_rune,
-            components::DL_ENTITY,
-        );
+        spawn(camera_x, camera_y, upper_rune, components::DL_ENTITY);
         for _ in 0..500 {
-            spawn(
-                camera_x as f64,
-                camera_y as f64,
-                lower_rune,
-                components::DL_FLOOR,
-            );
+            spawn(camera_x, camera_y, lower_rune, components::DL_FLOOR);
         }
 
         let mut render = Render::new(mock_renderer);

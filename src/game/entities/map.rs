@@ -35,8 +35,8 @@ pub fn create_in(world: &mut World) {
         world
             .create_entity()
             .with(components::Position {
-                x: wall.0 as f64,
-                y: wall.1 as f64,
+                x: wall.0,
+                y: wall.1,
             })
             .with(components::Draw {
                 fg_r: 255,
@@ -50,13 +50,12 @@ pub fn create_in(world: &mut World) {
             })
             .build();
     }
-
     for floor in floors {
         world
             .create_entity()
             .with(components::Position {
-                x: floor.0 as f64,
-                y: floor.1 as f64,
+                x: floor.0,
+                y: floor.1,
             })
             .with(components::Draw {
                 fg_r: 255,
