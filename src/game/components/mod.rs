@@ -66,3 +66,7 @@ pub struct Draw {
 #[derive(Component, Default)]
 #[storage(NullStorage)]
 pub struct Player;
+
+#[derive(Component, Default)]
+#[storage(NullStorage)]
+pub struct Blocking;
