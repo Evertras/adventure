@@ -8,46 +8,32 @@ impl<'a> System<'a> for PlayerMovement {
         ReadStorage<'a, components::Player>,
         WriteStorage<'a, components::Position>,
         Read<'a, resources::PendingAction>,
-        Read<'a, resources::game_map::GameMap>,
     );
 
-    fn run(&mut self, (player, mut position, pending_action, game_map): Self::SystemData) {
-        use resources::game_map::TileProperties;
+    fn run(&mut self, (player, mut position, pending_action): Self::SystemData) {
         use specs::Join;
 
-        let game_map = &game_map;
         let pending_action = &pending_action.0;
-
-        let try_move = |pos: &mut components::Position, target: components::Position| {
-            if !game_map.tile_is(&target, TileProperties::BLOCKED) {
-                pos.x = target.x;
-                pos.y = target.y;
-            }
-        };
 
         match pending_action {
             Some(input::Action::Up) => {
-                for (mut pos, _) in (&mut position, &player).join() {
-                    let target = pos.up();
-                    try_move(&mut pos, target);
+                for (pos, _) in (&mut position, &player).join() {
+                    pos.move_up();
                 }
             }
             Some(input::Action::Down) => {
-                for (mut pos, _) in (&mut position, &player).join() {
-                    let target = pos.down();
-                    try_move(&mut pos, target);
+                for (pos, _) in (&mut position, &player).join() {
+                    pos.move_down();
                 }
             }
             Some(input::Action::Right) => {
-                for (mut pos, _) in (&mut position, &player).join() {
-                    let target = pos.right();
-                    try_move(&mut pos, target);
+                for (pos, _) in (&mut position, &player).join() {
+                    pos.move_right();
                 }
             }
             Some(input::Action::Left) => {
-                for (mut pos, _) in (&mut position, &player).join() {
-                    let target = pos.left();
-                    try_move(&mut pos, target);
+                for (pos, _) in (&mut position, &player).join() {
+                    pos.move_left();
                 }
             }
             Some(_) => (),
@@ -58,7 +44,6 @@ impl<'a> System<'a> for PlayerMovement {
 
 #[cfg(test)]
 mod tests {
-    use super::super::super::resources::game_map::{GameMap, TileProperties};
     use super::*;
     use specs::{Builder, RunNow, World, WorldExt};
 
@@ -66,7 +51,6 @@ mod tests {
         pending_action: Option<input::Action>,
         start: components::Position,
         expected: components::Position,
-        map: GameMap,
     ) {
         let mut world = World::new();
 
@@ -74,7 +58,6 @@ mod tests {
         world.register::<components::Position>();
 
         world.insert(resources::PendingAction(pending_action));
-        world.insert(map);
 
         let ent_player = world
             .create_entity()
@@ -117,7 +100,6 @@ mod tests {
             None,
             components::Position::new(5, -3),
             components::Position::new(5, -3),
-            GameMap::new(),
         );
     }
 
@@ -128,7 +110,6 @@ mod tests {
             Some(input::Action::Up),
             components::Position::new(5, -3),
             components::Position::new(5, -4),
-            GameMap::new(),
         );
     }
 
@@ -139,7 +120,6 @@ mod tests {
             Some(input::Action::Down),
             components::Position::new(5, -3),
             components::Position::new(5, -2),
-            GameMap::new(),
         );
     }
 
@@ -149,7 +129,6 @@ mod tests {
             Some(input::Action::Right),
             components::Position::new(5, -3),
             components::Position::new(6, -3),
-            GameMap::new(),
         );
     }
 
@@ -159,22 +138,6 @@ mod tests {
             Some(input::Action::Left),
             components::Position::new(5, -3),
             components::Position::new(4, -3),
-            GameMap::new(),
-        );
-    }
-
-    #[test]
-    fn does_not_move_into_blocked_tile() {
-        let mut map = GameMap::new();
-        map.mark_tile(
-            &components::Position { x: 6, y: -3 },
-            TileProperties::BLOCKED,
-        );
-        test(
-            Some(input::Action::Right),
-            components::Position::new(5, -3),
-            components::Position::new(5, -3),
-            map,
         );
     }
 }

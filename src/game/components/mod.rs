@@ -11,11 +11,16 @@ impl Position {
     pub fn new(x: i32, y: i32) -> Position {
         Position { x, y }
     }
+
     pub fn up(&self) -> Position {
         Position {
             x: self.x,
             y: self.y - 1,
         }
+    }
+
+    pub fn move_up(&mut self) {
+        self.y -= 1;
     }
 
     pub fn down(&self) -> Position {
@@ -25,6 +30,10 @@ impl Position {
         }
     }
 
+    pub fn move_down(&mut self) {
+        self.y += 1;
+    }
+
     pub fn left(&self) -> Position {
         Position {
             x: self.x - 1,
@@ -32,11 +41,19 @@ impl Position {
         }
     }
 
+    pub fn move_left(&mut self) {
+        self.x -= 1;
+    }
+
     pub fn right(&self) -> Position {
         Position {
             x: self.x + 1,
             y: self.y,
         }
+    }
+
+    pub fn move_right(&mut self) {
+        self.x += 1;
     }
 }
 
