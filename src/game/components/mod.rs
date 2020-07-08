@@ -1,4 +1,4 @@
-use specs::{Component, NullStorage, VecStorage};
+use specs::{Component, HashMapStorage, NullStorage, VecStorage};
 
 #[derive(Clone, Component, Debug, PartialEq, Eq, Hash)]
 #[storage(VecStorage)]
@@ -12,15 +12,16 @@ impl Position {
         Position { x, y }
     }
 
+    pub fn set(&mut self, to: &Position) {
+        self.x = to.x;
+        self.y = to.y;
+    }
+
     pub fn up(&self) -> Position {
         Position {
             x: self.x,
             y: self.y - 1,
         }
-    }
-
-    pub fn move_up(&mut self) {
-        self.y -= 1;
     }
 
     pub fn down(&self) -> Position {
@@ -30,19 +31,11 @@ impl Position {
         }
     }
 
-    pub fn move_down(&mut self) {
-        self.y += 1;
-    }
-
     pub fn left(&self) -> Position {
         Position {
             x: self.x - 1,
             y: self.y,
         }
-    }
-
-    pub fn move_left(&mut self) {
-        self.x -= 1;
     }
 
     pub fn right(&self) -> Position {
@@ -51,10 +44,13 @@ impl Position {
             y: self.y,
         }
     }
+}
 
-    pub fn move_right(&mut self) {
-        self.x += 1;
-    }
+#[derive(Clone, Component, Debug, PartialEq, Eq, Hash)]
+#[storage(HashMapStorage)]
+pub struct Moved {
+    pub from: Position,
+    pub to: Position,
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
