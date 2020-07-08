@@ -48,6 +48,7 @@ pub fn create_in(world: &mut World) {
                 layer: components::DL_WALLS,
                 rune: 'X',
             })
+            .with(components::Solid)
             .build();
     }
     for floor in floors {

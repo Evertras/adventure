@@ -16,5 +16,6 @@ pub fn create_in(world: &mut World) {
             rune: '@',
         })
         .with(components::Player)
+        .with(components::Solid)
         .build();
 }
