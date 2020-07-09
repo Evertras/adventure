@@ -62,7 +62,7 @@ pub const DL_ENTITY: DrawLayer = DrawLayer(100);
 
 #[derive(Clone, Component, Debug, PartialEq, Eq)]
 #[storage(VecStorage)]
-pub struct Draw {
+pub struct Sprite {
     pub fg_r: u8,
     pub fg_g: u8,
     pub fg_b: u8,

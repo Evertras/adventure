@@ -38,7 +38,7 @@ pub fn create_in(world: &mut World) {
                 x: wall.0,
                 y: wall.1,
             })
-            .with(components::Draw {
+            .with(components::Sprite {
                 fg_r: 255,
                 fg_g: 255,
                 fg_b: 255,
@@ -58,7 +58,7 @@ pub fn create_in(world: &mut World) {
                 x: floor.0,
                 y: floor.1,
             })
-            .with(components::Draw {
+            .with(components::Sprite {
                 fg_r: 255,
                 fg_g: 255,
                 fg_b: 255,

@@ -5,7 +5,7 @@ pub fn create_in(world: &mut World) {
     world
         .create_entity()
         .with(components::Position { x: 0, y: 0 })
-        .with(components::Draw {
+        .with(components::Sprite {
             fg_r: 255,
             fg_g: 64,
             fg_b: 128,

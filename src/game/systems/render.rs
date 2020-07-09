@@ -25,7 +25,7 @@ pub trait Renderer {
 pub struct Render<T: Renderer> {
     renderer: T,
 
-    back_buffer: Vec<components::Draw>,
+    back_buffer: Vec<components::Sprite>,
     back_buffer_width: usize,
     back_buffer_height: usize,
 }
@@ -45,7 +45,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
     type SystemData = (
         Read<'a, resources::CameraCenter>,
         ReadStorage<'a, components::Position>,
-        ReadStorage<'a, components::Draw>,
+        ReadStorage<'a, components::Sprite>,
     );
 
     fn run(&mut self, (camera_center, pos, draw): Self::SystemData) {
@@ -64,7 +64,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
         let offset_x = if min_x < 0 { min_x - 1 } else { min_x };
         let offset_y = if min_y < 0 { min_y - 1 } else { min_y };
 
-        let mut to_draw: Vec<(usize, usize, &components::Draw)> = vec![];
+        let mut to_draw: Vec<(usize, usize, &components::Sprite)> = vec![];
 
         for (pos, draw) in (&pos, &draw).join() {
             let tile_x = pos.x as i32;
@@ -81,7 +81,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
         to_draw.sort_by_key(|k| &k.2.layer);
 
-        let blank = components::Draw {
+        let blank = components::Sprite {
             fg_r: 200,
             fg_g: 0,
             fg_b: 0,
@@ -95,7 +95,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
             rune: '?',
         };
 
-        let mut buffer: Vec<components::Draw> = vec![blank.clone(); width * height];
+        let mut buffer: Vec<components::Sprite> = vec![blank.clone(); width * height];
 
         for (tile_x, tile_y, draw) in to_draw {
             let i = (tile_y * width + tile_x) as usize;
@@ -103,7 +103,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
             if buffer[i].rune == '?' {
                 buffer[i] = draw.clone();
             } else {
-                buffer[i] = components::Draw {
+                buffer[i] = components::Sprite {
                     fg_r: draw.fg_r,
                     fg_g: draw.fg_g,
                     fg_b: draw.fg_b,
@@ -237,7 +237,7 @@ mod tests {
         };
 
         world.register::<components::Position>();
-        world.register::<components::Draw>();
+        world.register::<components::Sprite>();
 
         world.insert(camera_center);
 
@@ -245,7 +245,7 @@ mod tests {
             world
                 .create_entity()
                 .with(components::Position { x, y })
-                .with(components::Draw {
+                .with(components::Sprite {
                     fg_r,
                     fg_g,
                     fg_b,
@@ -327,7 +327,7 @@ mod tests {
         };
 
         world.register::<components::Position>();
-        world.register::<components::Draw>();
+        world.register::<components::Sprite>();
 
         world.insert(camera_center);
 
@@ -335,7 +335,7 @@ mod tests {
             world
                 .create_entity()
                 .with(components::Position { x, y })
-                .with(components::Draw {
+                .with(components::Sprite {
                     fg_r: 255,
                     fg_g: 255,
                     fg_b: 255,
