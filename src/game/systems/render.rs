@@ -46,9 +46,10 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
         Read<'a, resources::CameraCenter>,
         ReadStorage<'a, components::Position>,
         ReadStorage<'a, components::Sprite>,
+        ReadStorage<'a, components::Visible>,
     );
 
-    fn run(&mut self, (camera_center, pos, draw): Self::SystemData) {
+    fn run(&mut self, (camera_center, pos, draw, visible): Self::SystemData) {
         use specs::Join;
 
         let (width, height) = self.renderer.size();
@@ -66,21 +67,6 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
         let mut to_draw: Vec<(usize, usize, &components::Sprite)> = vec![];
 
-        for (pos, draw) in (&pos, &draw).join() {
-            let tile_x = pos.x as i32;
-            let tile_y = pos.y as i32;
-
-            if tile_x >= min_x && tile_x < max_x && tile_y >= min_y && tile_y < max_y {
-                to_draw.push((
-                    (tile_x - offset_x) as usize,
-                    (tile_y - offset_y) as usize,
-                    draw,
-                ));
-            }
-        }
-
-        to_draw.sort_by_key(|k| &k.2.layer);
-
         let blank = components::Sprite {
             fg_r: 200,
             fg_g: 0,
@@ -92,8 +78,23 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
             layer: components::DL_FLOOR,
 
-            rune: '?',
+            rune: '.',
         };
+
+        for (pos, draw, visible) in (&pos, &draw, (&visible).maybe()).join() {
+            let tile_x = pos.x as i32;
+            let tile_y = pos.y as i32;
+
+            if tile_x >= min_x && tile_x < max_x && tile_y >= min_y && tile_y < max_y {
+                to_draw.push((
+                    (tile_x - offset_x) as usize,
+                    (tile_y - offset_y) as usize,
+                    if let Some(_) = visible { draw } else { &blank },
+                ));
+            }
+        }
+
+        to_draw.sort_by_key(|k| &k.2.layer);
 
         let mut buffer: Vec<components::Sprite> = vec![blank.clone(); width * height];
 
@@ -238,11 +239,12 @@ mod tests {
 
         world.register::<components::Position>();
         world.register::<components::Sprite>();
+        world.register::<components::Visible>();
 
         world.insert(camera_center);
 
-        let mut spawn = |x: i32, y: i32| {
-            world
+        let mut spawn = |x: i32, y: i32, visible: bool| {
+            let mut builder = world
                 .create_entity()
                 .with(components::Position { x, y })
                 .with(components::Sprite {
@@ -257,24 +259,32 @@ mod tests {
                     layer: components::DL_ENTITY,
 
                     rune,
-                })
-                .build()
+                });
+
+            if visible {
+                builder = builder.with(components::Visible);
+            }
+
+            builder.build();
         };
 
-        // This should be visible
-        spawn(visible_x, visible_y);
+        // This should be visible because it's on screen and has the Visible component
+        spawn(visible_x, visible_y, true);
+
+        // This should be invisible due to lacking Visible component
+        spawn(visible_x, visible_y, false);
 
         // Off to the right
-        spawn(5, visible_y);
+        spawn(5, visible_y, true);
 
         // Off to the left
-        spawn(-2, visible_y);
+        spawn(-2, visible_y, true);
 
         // Above
-        spawn(visible_x, -54);
+        spawn(visible_x, -54, true);
 
         // Below
-        spawn(visible_x, -46);
+        spawn(visible_x, -46, true);
 
         let mut render = Render::new(mock_renderer);
 
@@ -328,6 +338,7 @@ mod tests {
 
         world.register::<components::Position>();
         world.register::<components::Sprite>();
+        world.register::<components::Visible>();
 
         world.insert(camera_center);
 
@@ -348,6 +359,7 @@ mod tests {
 
                     rune,
                 })
+                .with(components::Visible)
                 .build()
         };
 

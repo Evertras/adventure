@@ -48,7 +48,8 @@ pub fn create_in(world: &mut World) {
                 layer: components::DL_WALLS,
                 rune: 'X',
             })
-            .with(components::Solid)
+            .with(components::material::stone())
+            .with(components::Shape::FullBlock)
             .build();
     }
     for floor in floors {
@@ -68,6 +69,8 @@ pub fn create_in(world: &mut World) {
                 layer: components::DL_FLOOR,
                 rune: ' ',
             })
+            .with(components::material::stone())
+            .with(components::Shape::Floor)
             .build();
     }
 }

@@ -1,10 +1,10 @@
-use super::super::components;
+use super::super::{components, resources};
 use specs::{Builder, World, WorldExt};
 
-pub fn create_in(world: &mut World) {
-    world
+pub fn create_in(world: &mut World, pos: components::Position) -> specs::Entity {
+    let ent = world
         .create_entity()
-        .with(components::Position { x: 0, y: 0 })
+        .with(pos)
         .with(components::Sprite {
             fg_r: 255,
             fg_g: 64,
@@ -16,6 +16,11 @@ pub fn create_in(world: &mut World) {
             rune: '@',
         })
         .with(components::Player)
-        .with(components::Solid)
+        .with(components::material::flesh())
+        .with(components::Shape::Medium)
         .build();
+
+    world.insert(resources::Player { ent });
+
+    ent
 }

@@ -9,18 +9,18 @@ pub struct CollisionsSolid;
 impl<'a> System<'a> for CollisionsSolid {
     type SystemData = (
         WriteStorage<'a, components::Moved>,
-        ReadStorage<'a, components::Solid>,
+        ReadStorage<'a, components::material::Material>,
         specs::Entities<'a>,
         Read<'a, GameMap>,
     );
 
-    fn run(&mut self, (mut moved, solids, entities, game_map): Self::SystemData) {
+    fn run(&mut self, (mut moved, materials, entities, game_map): Self::SystemData) {
         use specs::Join;
 
         let mut to_remove = Vec::new();
 
-        for (mv, entity, _) in (&moved, &entities, &solids).join() {
-            if game_map.tile_is(&mv.to, TileProperties::BLOCKED) {
+        for (mv, entity, material) in (&moved, &entities, &materials).join() {
+            if material.solid && game_map.tile_is(&mv.to, TileProperties::BLOCKED) {
                 to_remove.push(entity);
             }
         }
@@ -46,7 +46,7 @@ mod tests {
 
         world.register::<components::Position>();
         world.register::<components::Moved>();
-        world.register::<components::Solid>();
+        world.register::<components::material::Material>();
 
         game_map.mark_tile(&target, TileProperties::BLOCKED);
 
@@ -85,7 +85,7 @@ mod tests {
 
         world.register::<components::Position>();
         world.register::<components::Moved>();
-        world.register::<components::Solid>();
+        world.register::<components::material::Material>();
 
         world.insert(game_map);
 
@@ -122,7 +122,7 @@ mod tests {
 
         world.register::<components::Position>();
         world.register::<components::Moved>();
-        world.register::<components::Solid>();
+        world.register::<components::material::Material>();
 
         game_map.mark_tile(&target, TileProperties::BLOCKED);
 
@@ -135,7 +135,7 @@ mod tests {
                 from: start.clone(),
                 to: target.clone(),
             })
-            .with(components::Solid)
+            .with(components::material::flesh())
             .build();
 
         let mut collisions_solid = CollisionsSolid;

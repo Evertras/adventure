@@ -12,6 +12,7 @@ use systems::{
     player_input::PlayerInput,
     render::{Render, Renderer},
     sync_game_map::SyncGameMap,
+    visibility::Visibility,
 };
 
 use specs::{DispatcherBuilder, World, WorldExt};
@@ -38,12 +39,13 @@ pub fn run<T: Renderer, U: input::Buffer>(renderer: T, mut input: U) {
             "movement_apply",
             &["player_input", "collisions_solid"],
         )
+        .with(Visibility, "visibility", &["movement_apply"])
         .with_thread_local(render)
         .build();
 
     dispatcher.setup(&mut world);
 
-    entities::player::create_in(&mut world);
+    entities::player::create_in(&mut world, components::Position::new(0, 0));
     entities::map::create_in(&mut world);
 
     loop {

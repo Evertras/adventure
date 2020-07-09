@@ -1,5 +1,7 @@
 use specs::{Component, HashMapStorage, NullStorage, VecStorage};
 
+pub mod material;
+
 #[derive(Clone, Component, Debug, PartialEq, Eq, Hash)]
 #[storage(VecStorage)]
 pub struct Position {
@@ -44,6 +46,119 @@ impl Position {
             y: self.y,
         }
     }
+
+    pub fn distance_squared(&self, to: &Position) -> f32 {
+        let x_diff = to.x - self.x;
+        let y_diff = to.y - self.y;
+
+        (x_diff*x_diff + y_diff*y_diff) as f32
+    }
+
+    pub fn theta(&self, to: &Position) -> f32 {
+        let x_diff = (to.x - self.x) as f32;
+        let y_diff = (to.y - self.y) as f32;
+
+        let quadrant = y_diff.atan2(x_diff);
+
+        if quadrant < 0. {
+            quadrant + 2.*std::f32::consts::PI
+        } else {
+            quadrant
+        }
+    }
+}
+
+#[cfg(test)]
+mod position_tests {
+    use super::*;
+    use std::f32::consts;
+
+    fn check(target: f32, result: f32) {
+        let diff = (result - target).abs();
+
+        if diff > 1e-5 {
+            assert_eq!(target, result);
+        }
+    }
+
+    #[test]
+    fn cardinal_directions_have_distance_one() {
+        let start = Position::new(7, -31);
+
+        check(1., start.distance_squared(&start.right()));
+        check(1., start.distance_squared(&start.left()));
+        check(1., start.distance_squared(&start.up()));
+        check(1., start.distance_squared(&start.down()));
+
+        check(2.*2., start.distance_squared(&start.down().down()));
+        check(1.+1., start.distance_squared(&start.right().down()));
+        check(1.+4., start.distance_squared(&start.right().down().down()));
+        check(0., start.distance_squared(&start.up().down()));
+    }
+
+    #[test]
+    fn theta_right_is_zero() {
+        let start = Position::new(-30, 1);
+        let right = start.right();
+
+        check(0., start.theta(&right));
+    }
+
+    #[test]
+    fn theta_down_is_pi_over_2() {
+        let start = Position::new(3, 4);
+        let down = start.down();
+
+        check(consts::FRAC_PI_2, start.theta(&down));
+    }
+
+    #[test]
+    fn theta_up_is_3_pi_over_2() {
+        let start = Position::new(3, 4);
+        let up = start.up();
+
+        check(3.*consts::FRAC_PI_2, start.theta(&up));
+    }
+
+    #[test]
+    fn theta_left_is_pi() {
+        let start = Position::new(3, 4);
+        let left = start.left();
+
+        check(consts::PI, start.theta(&left));
+    }
+
+    #[test]
+    fn theta_down_right_is_pi_over_4() {
+        let start = Position::new(3, 4);
+        let diagonal = start.right().down();
+
+        check(consts::FRAC_PI_4, start.theta(&diagonal));
+    }
+
+    #[test]
+    fn theta_down_left_is_3_pi_over_4() {
+        let start = Position::new(3, 4);
+        let diagonal = start.left().down();
+
+        check(3.*consts::FRAC_PI_4, start.theta(&diagonal));
+    }
+
+    #[test]
+    fn theta_up_right_is_7_pi_over_4() {
+        let start = Position::new(3, 4);
+        let diagonal = start.right().up();
+
+        check(7.*consts::FRAC_PI_4, start.theta(&diagonal));
+    }
+
+    #[test]
+    fn theta_up_left_is_5_pi_over_4() {
+        let start = Position::new(3, 4);
+        let diagonal = start.left().up();
+
+        check(5.*consts::FRAC_PI_4, start.theta(&diagonal));
+    }
 }
 
 #[derive(Clone, Component, Debug, PartialEq, Eq, Hash)]
@@ -82,4 +197,12 @@ pub struct Player;
 
 #[derive(Component, Default)]
 #[storage(NullStorage)]
-pub struct Solid;
+pub struct Visible;
+
+#[derive(Clone, Component, Debug, PartialEq, Eq)]
+#[storage(VecStorage)]
+pub enum Shape {
+    Floor,
+    Medium,
+    FullBlock,
+}

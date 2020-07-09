@@ -9,5 +9,9 @@ pub struct CameraCenter {
     pub y: i32,
 }
 
+pub struct Player {
+    pub ent: specs::Entity,
+}
+
 #[derive(Default)]
 pub struct PendingAction(pub Option<super::input::Action>);
