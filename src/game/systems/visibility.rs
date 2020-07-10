@@ -3,7 +3,7 @@ use specs::{Read, ReadStorage, System, WriteStorage};
 
 pub struct Visibility;
 
-const THETA_BUCKET_COUNT: i32 = 500;
+const THETA_BUCKET_COUNT: i32 = 1000;
 const THETA_BUCKET_SIZE: f32 = 2. * std::f32::consts::PI / (THETA_BUCKET_COUNT as f32);
 
 impl<'a> System<'a> for Visibility {
@@ -74,7 +74,7 @@ impl<'a> System<'a> for Visibility {
                 }
 
                 let theta = pos_player.theta(&pos);
-                let distance = pos_player.distance_squared(&pos);
+                let distance = pos_player.distance_squared_to_nearest_point(&pos);
 
                 if let Some(max_distance) = max_vision_blocked.get(&get_bucket(theta)) {
                     if distance <= *max_distance {

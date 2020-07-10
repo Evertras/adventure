@@ -25,6 +25,10 @@ pub fn create_in(world: &mut World) {
     walls.push((LEFT / 2, 1));
     walls.push((LEFT / 2, 2));
 
+    walls.push((RIGHT / 2, -1));
+    walls.push((RIGHT / 2, 0));
+    walls.push((RIGHT / 2, 5));
+
     for x in LEFT..RIGHT {
         for y in TOP..BOTTOM {
             floors.push((x, y));

@@ -54,6 +54,15 @@ impl Position {
         (x_diff * x_diff + y_diff * y_diff) as f32
     }
 
+    pub fn distance_squared_to_nearest_point(&self, to: &Position) -> f32 {
+        let (near_x, near_y) = self.closest_point(&to);
+
+        let x_diff = self.x as f32 - near_x;
+        let y_diff = self.y as f32 - near_y;
+
+        x_diff * x_diff + y_diff * y_diff
+    }
+
     fn angle_from_diff(x_diff: f32, y_diff: f32) -> f32 {
         let quadrant = y_diff.atan2(x_diff);
 
@@ -67,6 +76,14 @@ impl Position {
     pub fn theta(&self, to: &Position) -> f32 {
         let x_diff = (to.x - self.x) as f32;
         let y_diff = (to.y - self.y) as f32;
+
+        Position::angle_from_diff(x_diff, y_diff)
+    }
+
+    pub fn theta_to_nearest_point(&self, to: &Position) -> f32 {
+        let (nearest_x, nearest_y) = self.closest_point(&to);
+        let x_diff = nearest_x - self.x as f32;
+        let y_diff = nearest_y - self.y as f32;
 
         Position::angle_from_diff(x_diff, y_diff)
     }
@@ -116,6 +133,26 @@ impl Position {
             Position::angle_from_diff(corner_a_diff_x, corner_a_diff_y),
             Position::angle_from_diff(corner_b_diff_x, corner_b_diff_y),
         )
+    }
+
+    pub fn closest_point(&self, to: &Position) -> (f32, f32) {
+        // There's almost certainly a "clever" way to do this, but let's start with dumb
+        let x_offset = if self.x == to.x {
+            0.
+        } else if self.x > to.x {
+            0.5
+        } else {
+            -0.5
+        };
+        let y_offset = if self.y == to.y {
+            0.
+        } else if self.y > to.y {
+            0.5
+        } else {
+            -0.5
+        };
+
+        (to.x as f32 + x_offset, to.y as f32 + y_offset)
     }
 }
 
@@ -293,6 +330,89 @@ mod position_tests {
             std::f32::consts::FRAC_PI_4,
             3. * std::f32::consts::FRAC_PI_4,
         );
+    }
+
+    fn check_closest_point(from: &Position, to: &Position, expect_x: f32, expect_y: f32) {
+        let (actual_x, actual_y) = from.closest_point(&to);
+        if (expect_x - actual_x).abs() > 1e-5 {
+            panic!("X incorrect: expected {} but got {}", expect_x, actual_x);
+        }
+
+        if (expect_y - actual_y).abs() > 1e-5 {
+            panic!("Y incorrect: expected {} but got {}", expect_y, actual_y);
+        }
+    }
+
+    #[test]
+    fn closest_point_straight_right_has_expected_values() {
+        let start = Position::new(3, 4);
+        let adj = start.right();
+        let further = adj.right();
+
+        check_closest_point(&start, &adj, 3.5, 4.);
+        check_closest_point(&start, &further, 4.5, 4.);
+    }
+
+    #[test]
+    fn closest_point_straight_left_has_expected_values() {
+        let start = Position::new(3, 4);
+        let adj = start.left();
+        let further = adj.left();
+
+        check_closest_point(&start, &adj, 2.5, 4.);
+        check_closest_point(&start, &further, 1.5, 4.);
+    }
+
+    #[test]
+    fn closest_point_straight_up_has_expected_values() {
+        let start = Position::new(3, 4);
+        let adj = start.up();
+        let further = adj.up();
+
+        check_closest_point(&start, &adj, 3., 3.5);
+        check_closest_point(&start, &further, 3., 2.5);
+    }
+
+    #[test]
+    fn closest_point_straight_down_has_expected_values() {
+        let start = Position::new(3, 4);
+        let adj = start.down();
+        let further = adj.down();
+
+        check_closest_point(&start, &adj, 3., 4.5);
+        check_closest_point(&start, &further, 3., 5.5);
+    }
+
+    #[test]
+    fn closest_point_up_left_is_corner() {
+        let start = Position::new(3, 4);
+        let target = Position::new(0, 0);
+
+        check_closest_point(&start, &target, 0.5, 0.5);
+    }
+
+    #[test]
+    fn closest_point_down_left_is_corner() {
+        let start = Position::new(3, 4);
+        let target = Position::new(0, 6);
+
+        check_closest_point(&start, &target, 0.5, 5.5);
+    }
+
+    #[test]
+    fn closest_point_up_right_is_corner() {
+        let start = Position::new(3, 4);
+        let target = Position::new(5, 2);
+
+        check_closest_point(&start, &target, 4.5, 2.5);
+    }
+
+    #[test]
+    fn closest_point_down_right_is_corner() {
+        let start = Position::new(3, 4);
+        let target = Position::new(5, 7);
+
+        check_closest_point(&start, &target, 4.5, 6.5);
     }
 }
 
