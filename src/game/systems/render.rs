@@ -78,7 +78,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
             layer: components::DL_FLOOR,
 
-            rune: '.',
+            rune: '?',
         };
 
         for (pos, draw, visible) in (&pos, &draw, (&visible).maybe()).join() {

@@ -27,7 +27,9 @@ impl<'a> System<'a> for SyncGameMap {
 
             if material.solid {
                 match shape {
-                    components::Shape::FullBlock => game_map.mark_tile(&pos, TileProperties::BLOCKED),
+                    components::Shape::FullBlock => {
+                        game_map.mark_tile(&pos, TileProperties::BLOCKED)
+                    }
                     _ => (),
                 };
             }
@@ -59,7 +61,8 @@ mod tests {
         let mut world = build_world();
         let pos = components::Position::new(3, -4);
 
-        world.create_entity()
+        world
+            .create_entity()
             .with(pos.clone())
             .with(components::material::smoke())
             .with(components::Shape::FullBlock)
