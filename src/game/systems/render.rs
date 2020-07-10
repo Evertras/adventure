@@ -67,8 +67,10 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
         let mut to_draw: Vec<(usize, usize, &components::Sprite)> = vec![];
 
+        let blank_rune = '?';
+
         let blank = components::Sprite {
-            fg_r: 200,
+            fg_r: 60,
             fg_g: 0,
             fg_b: 0,
 
@@ -78,7 +80,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
 
             layer: components::DL_FLOOR,
 
-            rune: '?',
+            rune: blank_rune,
         };
 
         for (pos, draw, visible) in (&pos, &draw, (&visible).maybe()).join() {
@@ -101,7 +103,7 @@ impl<'a, T: Renderer> System<'a> for Render<T> {
         for (tile_x, tile_y, draw) in to_draw {
             let i = (tile_y * width + tile_x) as usize;
 
-            if buffer[i].rune == '?' {
+            if buffer[i].rune == blank_rune {
                 buffer[i] = draw.clone();
             } else {
                 buffer[i] = components::Sprite {
